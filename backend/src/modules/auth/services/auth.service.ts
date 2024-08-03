@@ -1,5 +1,4 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../../users/services/users.service';
@@ -15,7 +14,6 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<TokenResponse> {
@@ -70,9 +68,7 @@ export class AuthService {
     username: string;
   }): TokenResponse {
     const payload = this.createPayload(user);
-    const token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_TOKEN_SECRET'),
-    });
+    const token = this.jwtService.sign(payload);
     return { token };
   }
 }

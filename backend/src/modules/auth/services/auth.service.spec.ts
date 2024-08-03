@@ -85,10 +85,7 @@ describe('AuthService', () => {
       const responseToken = await userSignUp();
 
       expect(bcrypt.hash).toHaveBeenCalledWith(password, 'salt');
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        { id: 1, username },
-        { secret: 'jwt_token_secret' },
-      );
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: 1, username });
       expect(responseToken).toEqual({ token });
 
       await validateUser();
@@ -107,12 +104,7 @@ describe('AuthService', () => {
         password,
         `hashed${password}`,
       );
-      expect(jwtService.sign).toHaveBeenCalledWith(
-        { id: 1, username },
-        {
-          secret: 'jwt_token_secret',
-        },
-      );
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: 1, username });
       expect(result).toEqual({ token });
 
       await validateUser();
