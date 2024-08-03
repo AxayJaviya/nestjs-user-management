@@ -17,6 +17,17 @@ export class UsersService {
     return this.usersRepository.createUser(user);
   }
 
+  async getUserById(id: User['id']): Promise<UserWithoutPassword> {
+    return this.usersRepository.getUserById(id);
+  }
+
+  async updateUserById(
+    id: User['id'],
+    user: Partial<User>,
+  ): Promise<UserWithoutPassword> {
+    return this.usersRepository.updateUserById(id, user);
+  }
+
   async getFullUserByUserName(username: User['username']): Promise<User> {
     return this.usersRepository.getFullUserByUserName(username);
   }
