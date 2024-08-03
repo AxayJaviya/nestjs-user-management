@@ -7,12 +7,14 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { TokensService } from '../modules/auth/services/tokens.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
-    private configService: ConfigService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly tokenService: TokensService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -21,6 +23,12 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException();
     }
+
+    const isValidToken = await this.tokenService.isBlacklisted(token);
+    if (isValidToken) {
+      throw new UnauthorizedException('Invalid accessToken!');
+    }
+
     try {
       request['user'] = await this.jwtService.verifyAsync(token, {
         secret: this.configService.get<string>('JWT_TOKEN_SECRET'),
@@ -28,6 +36,7 @@ export class AuthGuard implements CanActivate {
     } catch (e: unknown) {
       throw new UnauthorizedException();
     }
+
     return true;
   }
 
