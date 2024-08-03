@@ -22,3 +22,9 @@ model Users {
 
   @@index([username], name: "username_idx") // Adding an index on the username for faster retrival
 }
+
+model BlacklistedToken {
+  id          Int      @id @default(autoincrement())
+  token       String   @unique
+  expired_at  DateTime @default(now())
+}
