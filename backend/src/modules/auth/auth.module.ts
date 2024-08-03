@@ -5,7 +5,9 @@ import * as process from 'node:process';
 import { InMemoryUsersRepository } from '../users/repositories/in-memory.users.repository';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
+import { InMemoryTokensRepository } from './repositories/in-memory.tokens.repository';
 import { AuthService } from './services/auth.service';
+import { TokenService } from './services/token.service';
 
 @Module({
   imports: [
@@ -22,6 +24,14 @@ import { AuthService } from './services/auth.service';
     }),
   ],
   providers: [
+    TokenService,
+    {
+      provide: 'TokensRepository',
+      useClass:
+        process.env.NODE_ENV === 'test'
+          ? InMemoryTokensRepository
+          : InMemoryTokensRepository,
+    },
     AuthService,
     {
       provide: 'UsersRepository',

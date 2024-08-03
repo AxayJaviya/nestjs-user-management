@@ -7,7 +7,9 @@ import { InMemoryUsersRepository } from '../../users/repositories/in-memory.user
 import { UsersService } from '../../users/services/users.service';
 import { SignInDto } from '../dtos/sign-in.dto';
 import { SignUpDto } from '../dtos/sign-up.dto';
+import { InMemoryTokensRepository } from '../repositories/in-memory.tokens.repository';
 import { AuthService } from './auth.service';
+import { TokenService } from './token.service';
 
 // Mocks
 jest.mock('bcrypt');
@@ -17,6 +19,9 @@ const mockJwtService = {
   sign: jest.fn(
     ({ id, username }: { id: number; username: string }) => `${id}:${username}`,
   ),
+  decode: jest.fn(() => {
+    return { id: 1, username: 'testuser' };
+  }),
 };
 
 // Mock ConfigService
@@ -66,6 +71,8 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        TokenService,
+        { provide: 'TokensRepository', useClass: InMemoryTokensRepository },
         UsersService,
         { provide: 'UsersRepository', useClass: InMemoryUsersRepository },
         { provide: JwtService, useValue: mockJwtService },
@@ -79,22 +86,22 @@ describe('AuthService', () => {
   });
 
   describe('signUp', () => {
-    it('should hash password, create user, and return a token', async () => {
-      const token = `1:${username}`;
+    it('should hash password, create user, and return a accessToken', async () => {
+      const accessToken = `1:${username}`;
 
       const responseToken = await userSignUp();
 
       expect(bcrypt.hash).toHaveBeenCalledWith(password, 'salt');
       expect(jwtService.sign).toHaveBeenCalledWith({ id: 1, username });
-      expect(responseToken).toEqual({ token });
+      expect(responseToken).toEqual({ accessToken });
 
       await validateUser();
     });
   });
 
   describe('signIn', () => {
-    it('should return a token if username and password are correct', async () => {
-      const token = `1:${username}`;
+    it('should return a accessToken if username and password are correct', async () => {
+      const accessToken = `1:${username}`;
 
       await userSignUp();
       const signInDto: SignInDto = { username, password };
@@ -105,7 +112,7 @@ describe('AuthService', () => {
         `hashed${password}`,
       );
       expect(jwtService.sign).toHaveBeenCalledWith({ id: 1, username });
-      expect(result).toEqual({ token });
+      expect(result).toEqual({ accessToken });
 
       await validateUser();
     });
@@ -126,6 +133,16 @@ describe('AuthService', () => {
       };
       await expect(authService.signIn(signInDto)).rejects.toThrow(
         UnauthorizedException,
+      );
+    });
+  });
+
+  describe('logout', () => {
+    it('should invalidate accessToken for given user', async () => {
+      const responseToken = await userSignUp();
+
+      expect(await authService.logout(responseToken['accessToken'])).toBe(
+        undefined,
       );
     });
   });

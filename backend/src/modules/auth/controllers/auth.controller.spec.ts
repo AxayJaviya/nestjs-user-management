@@ -7,7 +7,9 @@ import { InMemoryUsersRepository } from '../../users/repositories/in-memory.user
 import { UsersService } from '../../users/services/users.service';
 import { SignInDto } from '../dtos/sign-in.dto';
 import { SignUpDto } from '../dtos/sign-up.dto';
+import { InMemoryTokensRepository } from '../repositories/in-memory.tokens.repository';
 import { AuthService } from '../services/auth.service';
+import { TokenService } from '../services/token.service';
 import { AuthController } from './auth.controller';
 
 // Mocks
@@ -52,6 +54,8 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
+        TokenService,
+        { provide: 'TokensRepository', useClass: InMemoryTokensRepository },
         UsersService,
         { provide: 'UsersRepository', useClass: InMemoryUsersRepository },
         { provide: JwtService, useValue: mockJwtService },
@@ -66,10 +70,10 @@ describe('AuthController', () => {
   describe('signUp', () => {
     it('should return a token on successful sign-up', async () => {
       const signUpDto: SignUpDto = { username, password };
-      const token = `1:${username}`;
+      const accessToken = `1:${username}`;
 
       const result = await authController.signUp(signUpDto);
-      expect(result).toEqual({ token });
+      expect(result).toEqual({ accessToken });
 
       const registeredUser = await usersService.getFullUserByUserName(username);
       expect(registeredUser).toEqual(
@@ -88,12 +92,12 @@ describe('AuthController', () => {
     it('should return a token on successful sign-in', async () => {
       const signUpDto: SignUpDto = { username, password };
       const signInDto: SignInDto = { ...signUpDto };
-      const token = `1:${username}`;
+      const accessToken = `1:${username}`;
 
       await authController.signUp(signUpDto);
 
       const result = await authController.signIn(signInDto);
-      expect(result).toEqual({ token });
+      expect(result).toEqual({ accessToken });
     });
 
     it('should throw UnauthorizedException on failed sign-in', async () => {
