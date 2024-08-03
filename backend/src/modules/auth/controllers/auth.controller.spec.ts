@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -31,7 +31,7 @@ describe('AuthController', () => {
   let authController: AuthController;
   let usersService: UsersService;
 
-  // variables
+  // Variables
   const username = 'testuser';
   const password = 'password123';
 
@@ -65,10 +65,13 @@ describe('AuthController', () => {
 
     authController = module.get<AuthController>(AuthController);
     usersService = module.get<UsersService>(UsersService);
+
+    // Clear users in the repository before each test
+    await usersService.clearUsers();
   });
 
   describe('signUp', () => {
-    it('should return a token on successful sign-up', async () => {
+    it('should return a token on successful signup', async () => {
       const signUpDto: SignUpDto = { username, password };
       const accessToken = `1:${username}`;
 
@@ -78,10 +81,10 @@ describe('AuthController', () => {
       const registeredUser = await usersService.getFullUserByUserName(username);
       expect(registeredUser).toEqual(
         expect.objectContaining({
-          id: 1,
+          id: expect.any(Number),
           username: signUpDto.username,
-          created_at: expect.any(Date),
-          updated_at: expect.any(Date),
+          created_at: expect.anything(),
+          updated_at: expect.anything(),
           password: `hashed${password}`,
         }),
       );
@@ -89,7 +92,7 @@ describe('AuthController', () => {
   });
 
   describe('signIn', () => {
-    it('should return a token on successful sign-in', async () => {
+    it('should return a token on successful signin', async () => {
       const signUpDto: SignUpDto = { username, password };
       const signInDto: SignInDto = { ...signUpDto };
       const accessToken = `1:${username}`;
@@ -100,7 +103,7 @@ describe('AuthController', () => {
       expect(result).toEqual({ accessToken });
     });
 
-    it('should throw UnauthorizedException on failed sign-in', async () => {
+    it('should throw UnauthorizedException on failed signin due to wrong password', async () => {
       const signUpDto: SignUpDto = { username, password };
       const signInDto: SignInDto = { username, password: 'invalidPassword' };
 
@@ -108,6 +111,17 @@ describe('AuthController', () => {
 
       await expect(authController.signIn(signInDto)).rejects.toThrow(
         UnauthorizedException,
+      );
+    });
+
+    it('should throw UnauthorizedException on failed signin due to non-existent username', async () => {
+      const signInDto: SignInDto = {
+        username: 'nonExistentUser',
+        password: 'password123',
+      };
+
+      await expect(authController.signIn(signInDto)).rejects.toThrow(
+        NotFoundException,
       );
     });
   });

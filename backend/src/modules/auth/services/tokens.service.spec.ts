@@ -8,7 +8,8 @@ import { TokensService } from './tokens.service';
 const mockJwtService = {
   decode: jest.fn().mockImplementation((token: string) => {
     if (token === 'validToken') {
-      return { id: 1, username: 'testuser' }; // Simulate a valid decoded token
+      // Simulate a valid decoded token
+      return { id: 1, username: 'testuser' };
     }
     return null;
   }),

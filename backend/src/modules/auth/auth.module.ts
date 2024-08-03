@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import * as process from 'node:process';
 import { InMemoryUsersRepository } from '../users/repositories/in-memory.users.repository';
+import { UsersService } from '../users/services/users.service';
 import { UsersModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
 import { InMemoryTokensRepository } from './repositories/in-memory.tokens.repository';
@@ -33,6 +34,7 @@ import { TokensService } from './services/tokens.service';
           : InMemoryTokensRepository,
     },
     AuthService,
+    UsersService,
     {
       provide: 'UsersRepository',
       useClass:

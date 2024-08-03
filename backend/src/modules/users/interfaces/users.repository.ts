@@ -8,4 +8,5 @@ export interface UsersRepository {
   getUserById(id: User['id']): UserWithoutPassword;
   updateUserById(id: User['id'], user: Partial<User>): UserWithoutPassword;
   getFullUserByUserName(username: User['username']): User;
+  clearUsers(): void;
 }

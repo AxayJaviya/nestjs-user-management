@@ -1,4 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import * as process from 'node:process';
 import { User } from '../interfaces/user.interface';
 import {
   UsersRepository,
@@ -25,10 +27,26 @@ export class UsersService {
     id: User['id'],
     user: Partial<User>,
   ): Promise<UserWithoutPassword> {
-    return this.usersRepository.updateUserById(id, user);
+    const updateUser = { ...user };
+    if (user.password) {
+      updateUser.password = await this.hashPassword(user.password);
+    }
+
+    return this.usersRepository.updateUserById(id, updateUser);
   }
 
   async getFullUserByUserName(username: User['username']): Promise<User> {
     return this.usersRepository.getFullUserByUserName(username);
+  }
+
+  async clearUsers() {
+    if (process.env.NODE_ENV === 'test') {
+      this.usersRepository.clearUsers();
+    }
+  }
+
+  private async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+    return bcrypt.hash(password, salt);
   }
 }

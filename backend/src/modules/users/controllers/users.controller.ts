@@ -11,19 +11,18 @@ import { UpdateUserProfileDto } from '../dtos/updateUserProfile.dto';
 import { UserWithoutPassword } from '../interfaces/users.repository';
 import { UsersService } from '../services/users.service';
 
-// NOTE: We can also globally register AuthGuard, but for our useCase it is okay to add on Controller level
 @UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get('whoami')
+  @Get('/whoami')
   getProfile(@Request() req) {
     const userId = req.user.id;
     return this.usersService.getUserById(userId);
   }
 
-  @Patch('profile')
+  @Patch('/profile')
   updateProfile(
     @Request() req,
     @Body() userProfile: UpdateUserProfileDto,

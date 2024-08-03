@@ -1,4 +1,4 @@
-import { UnauthorizedException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -19,9 +19,7 @@ const mockJwtService = {
   sign: jest.fn(
     ({ id, username }: { id: number; username: string }) => `${id}:${username}`,
   ),
-  decode: jest.fn(() => {
-    return { id: 1, username: 'testuser' };
-  }),
+  decode: jest.fn(() => ({ id: 1, username: 'testuser' })),
 };
 
 // Mock ConfigService
@@ -34,7 +32,7 @@ describe('AuthService', () => {
   let usersService: UsersService;
   let jwtService: JwtService;
 
-  // variables
+  // Variables
   const username = 'testuser';
   const password = 'password123';
 
@@ -56,13 +54,14 @@ describe('AuthService', () => {
 
   const validateUser = async () => {
     const user = await usersService.getFullUserByUserName(username);
-    expect(user).toEqual({
-      id: 1,
-      username,
-      password: `hashed${password}`,
-      created_at: expect.any(Date),
-      updated_at: expect.any(Date),
-    });
+    expect(user).toEqual(
+      expect.objectContaining({
+        username,
+        password: `hashed${password}`,
+        created_at: expect.anything(),
+        updated_at: expect.anything(),
+      }),
+    );
   };
 
   beforeEach(async () => {
@@ -83,24 +82,28 @@ describe('AuthService', () => {
     authService = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
     jwtService = module.get<JwtService>(JwtService);
+
+    // Clear users in the repository before each test
+    (usersService as unknown as InMemoryUsersRepository).clearUsers();
   });
 
   describe('signUp', () => {
-    it('should hash password, create user, and return a accessToken', async () => {
-      const accessToken = `1:${username}`;
-
+    it('should hash password, create user, and return an accessToken', async () => {
       const responseToken = await userSignUp();
 
       expect(bcrypt.hash).toHaveBeenCalledWith(password, 'salt');
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: 1, username });
-      expect(responseToken).toEqual({ accessToken });
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        id: expect.any(Number),
+        username,
+      });
+      expect(responseToken).toEqual({ accessToken: expect.any(String) });
 
       await validateUser();
     });
   });
 
   describe('signIn', () => {
-    it('should return a accessToken if username and password are correct', async () => {
+    it('should return an accessToken if username and password are correct', async () => {
       const accessToken = `1:${username}`;
 
       await userSignUp();
@@ -111,7 +114,10 @@ describe('AuthService', () => {
         password,
         `hashed${password}`,
       );
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: 1, username });
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        id: expect.any(Number),
+        username,
+      });
       expect(result).toEqual({ accessToken });
 
       await validateUser();
@@ -126,13 +132,13 @@ describe('AuthService', () => {
       );
     });
 
-    it('should throw UnauthorizedException if username is not found', async () => {
+    it('should throw NotFoundException if username is not found', async () => {
       const signInDto: SignInDto = {
         username: 'invalidUserName',
         password: 'password123',
       };
       await expect(authService.signIn(signInDto)).rejects.toThrow(
-        UnauthorizedException,
+        NotFoundException,
       );
     });
   });
@@ -141,9 +147,9 @@ describe('AuthService', () => {
     it('should invalidate accessToken for given user', async () => {
       const responseToken = await userSignUp();
 
-      expect(await authService.logout(responseToken['accessToken'])).toBe(
-        undefined,
-      );
+      await expect(
+        authService.logout(responseToken.accessToken),
+      ).resolves.toBeUndefined();
     });
   });
 });

@@ -14,7 +14,7 @@ export class TokensService {
   async invalidateToken(token: Tokens['accessToken']) {
     const decodedToken = this.jwtService.decode(token) as any;
     if (!decodedToken) {
-      throw new UnauthorizedException('Invalid token!');
+      throw new UnauthorizedException('Invalid accessToken!');
     }
 
     await this.tokenRepository.invalidateToken(token);

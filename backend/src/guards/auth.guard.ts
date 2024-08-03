@@ -14,7 +14,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly tokenService: TokensService,
+    private readonly tokensService: TokensService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,7 +24,7 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    const isValidToken = await this.tokenService.isBlacklisted(token);
+    const isValidToken = await this.tokensService.isBlacklisted(token);
     if (isValidToken) {
       throw new UnauthorizedException('Invalid accessToken!');
     }
