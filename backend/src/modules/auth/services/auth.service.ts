@@ -4,7 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { UsersService } from '../../users/services/users.service';
 import { SignInDto } from '../dtos/sign-in.dto';
 import { SignUpDto } from '../dtos/sign-up.dto';
-import { TokenService } from './token.service';
+import { TokensService } from './tokens.service';
 
 export interface Tokens {
   accessToken: string;
@@ -15,7 +15,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-    private readonly tokenService: TokenService,
+    private readonly tokenService: TokensService,
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<Tokens> {

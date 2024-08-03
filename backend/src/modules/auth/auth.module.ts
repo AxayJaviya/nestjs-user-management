@@ -7,7 +7,7 @@ import { UsersModule } from '../users/users.module';
 import { AuthController } from './controllers/auth.controller';
 import { InMemoryTokensRepository } from './repositories/in-memory.tokens.repository';
 import { AuthService } from './services/auth.service';
-import { TokenService } from './services/token.service';
+import { TokensService } from './services/tokens.service';
 
 @Module({
   imports: [
@@ -24,7 +24,7 @@ import { TokenService } from './services/token.service';
     }),
   ],
   providers: [
-    TokenService,
+    TokensService,
     {
       provide: 'TokensRepository',
       useClass:

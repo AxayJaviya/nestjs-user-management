@@ -9,7 +9,7 @@ import { SignInDto } from '../dtos/sign-in.dto';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { InMemoryTokensRepository } from '../repositories/in-memory.tokens.repository';
 import { AuthService } from '../services/auth.service';
-import { TokenService } from '../services/token.service';
+import { TokensService } from '../services/tokens.service';
 import { AuthController } from './auth.controller';
 
 // Mocks
@@ -54,7 +54,7 @@ describe('AuthController', () => {
       controllers: [AuthController],
       providers: [
         AuthService,
-        TokenService,
+        TokensService,
         { provide: 'TokensRepository', useClass: InMemoryTokensRepository },
         UsersService,
         { provide: 'UsersRepository', useClass: InMemoryUsersRepository },

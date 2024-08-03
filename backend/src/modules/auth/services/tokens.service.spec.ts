@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { InMemoryTokensRepository } from '../repositories/in-memory.tokens.repository';
-import { TokenService } from './token.service';
+import { TokensService } from './tokens.service';
 
 // Mock JwtService
 const mockJwtService = {
@@ -15,19 +15,19 @@ const mockJwtService = {
 };
 
 describe('TokenService', () => {
-  let tokenService: TokenService;
+  let tokenService: TokensService;
   let jwtService: JwtService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        TokenService,
+        TokensService,
         { provide: 'TokensRepository', useClass: InMemoryTokensRepository },
         { provide: JwtService, useValue: mockJwtService },
       ],
     }).compile();
 
-    tokenService = module.get<TokenService>(TokenService);
+    tokenService = module.get<TokensService>(TokensService);
     jwtService = module.get<JwtService>(JwtService);
   });
 

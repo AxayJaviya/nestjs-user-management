@@ -4,7 +4,7 @@ import { TokensRepository } from '../interfaces/tokens-repository.interface';
 import { Tokens } from './auth.service';
 
 @Injectable()
-export class TokenService {
+export class TokensService {
   constructor(
     private readonly jwtService: JwtService,
     @Inject('TokensRepository')

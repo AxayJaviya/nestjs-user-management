@@ -2,7 +2,9 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
-import { AuthGuard } from '../../../guards/auth.guard'; // Adjust path as needed
+import { AuthGuard } from '../../../guards/auth.guard';
+import { InMemoryTokensRepository } from '../../auth/repositories/in-memory.tokens.repository';
+import { TokensService } from '../../auth/services/tokens.service'; // Adjust path as needed
 import { UpdateUserProfileDto } from '../dtos/updateUserProfile.dto';
 import { InMemoryUsersRepository } from '../repositories/in-memory.users.repository';
 import { UsersService } from '../services/users.service';
@@ -31,6 +33,8 @@ describe('UsersController', () => {
       controllers: [UsersController],
       providers: [
         ConfigService,
+        TokensService,
+        { provide: 'TokensRepository', useClass: InMemoryTokensRepository },
         UsersService,
         { provide: 'UsersRepository', useClass: InMemoryUsersRepository },
         { provide: JwtService, useValue: mockJwtService },

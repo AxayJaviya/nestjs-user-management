@@ -9,7 +9,7 @@ import { SignInDto } from '../dtos/sign-in.dto';
 import { SignUpDto } from '../dtos/sign-up.dto';
 import { InMemoryTokensRepository } from '../repositories/in-memory.tokens.repository';
 import { AuthService } from './auth.service';
-import { TokenService } from './token.service';
+import { TokensService } from './tokens.service';
 
 // Mocks
 jest.mock('bcrypt');
@@ -71,7 +71,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        TokenService,
+        TokensService,
         { provide: 'TokensRepository', useClass: InMemoryTokensRepository },
         UsersService,
         { provide: 'UsersRepository', useClass: InMemoryUsersRepository },
