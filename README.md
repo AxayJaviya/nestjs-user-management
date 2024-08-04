@@ -53,16 +53,33 @@ RESTful APIs for managing user registration, authentication, and profile managem
 ## Running the Application
 
 1. **Locally (Development Mode):**
-    - Start the application using:
+   - Start the application using:
     ```
     npm run start:dev
     ```
+
 2. **Using Docker Compose:**
-    - Navigate to the `backend` folder and run:
-    ```
-    docker-compose up
-    ```
-    - This command will build Docker images and start both the application and PostgreSQL container.
+   - **Build Docker Images:**
+      - Navigate to the `backend` folder and build the Docker images using:
+     ```
+     docker-compose build
+     ```
+
+   - **Start Containers:**
+      - After building the images, start the containers using:
+     ```
+     docker-compose up
+     ```
+      - This command will start both the application and PostgreSQL container. If you want to run the containers in detached mode (in the background), use:
+     ```
+     docker-compose up -d
+     ```
+
+   - **Stop and Remove Containers:**
+      - To stop and remove all containers, networks, and volumes created by `docker-compose up`, use:
+     ```
+     docker-compose down
+     ```
 
 ## Running Tests
 

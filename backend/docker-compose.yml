@@ -19,10 +19,8 @@ services:
   postgres:
     image: postgres:16.3-alpine
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file:
+      - .env.development # Change this to the appropriate .env file for other environments
     ports:
       - '5432:5432'
     volumes:
