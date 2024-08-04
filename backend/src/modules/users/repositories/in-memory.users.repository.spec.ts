@@ -9,7 +9,7 @@ describe('InMemoryUsersRepository', () => {
   let repository: InMemoryUsersRepository;
   const filePath = path.join(__dirname, 'data/users.json');
 
-  beforeEach(() => {
+  beforeEach(async () => {
     repository = new InMemoryUsersRepository();
     // Clean up the file before each test to ensure no residual data
     if (fs.existsSync(filePath)) {
@@ -17,22 +17,14 @@ describe('InMemoryUsersRepository', () => {
     }
   });
 
-  afterEach(() => {
-    // Ensure the file is cleaned up after each test
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-  });
-
-  it('should create a user with a given username and password', () => {
+  it('should create a user with a given username and password', async () => {
     const userWithoutId: UserWithoutId = {
       username: 'testuser',
       password: 'password123',
     };
 
-    const result = repository.createUser(userWithoutId);
+    const result = await repository.createUser(userWithoutId);
 
-    // Validate overall structure
     expect(result).toEqual({
       id: expect.any(Number),
       username: 'testuser',
@@ -40,61 +32,61 @@ describe('InMemoryUsersRepository', () => {
       updated_at: expect.anything(),
     });
 
-    // Ensure the password is not included in the result
     expect(result).not.toHaveProperty('password');
   });
 
-  it('should throw BadRequestException if username already exists', () => {
+  it('should throw BadRequestException if username already exists', async () => {
     const userWithoutId: UserWithoutId = {
       username: 'testuser',
       password: 'password123',
     };
-    repository.createUser(userWithoutId);
+    await repository.createUser(userWithoutId);
 
     const newUserWithoutId: UserWithoutId = {
       username: 'testuser',
       password: 'newpassword456',
     };
 
-    expect(() => repository.createUser(newUserWithoutId)).toThrow(
+    await expect(repository.createUser(newUserWithoutId)).rejects.toThrow(
       BadRequestException,
     );
   });
 
-  it('should update a user for a given userId', () => {
+  it('should update a user for a given userId', async () => {
     const userWithoutId: UserWithoutId = {
       username: 'testuser',
       password: 'password123',
     };
-    const { id } = repository.createUser(userWithoutId);
+    const { id } = await repository.createUser(userWithoutId);
 
     const updateData: Partial<User> = { username: 'updateduser' };
-    const result = repository.updateUserById(id, updateData);
+    const result = await repository.updateUserById(id, updateData);
 
     expect(result).toEqual({
-      id: 1,
+      id,
       username: 'updateduser',
       created_at: expect.anything(),
       updated_at: expect.anything(),
     });
+
     expect(result).not.toHaveProperty('password');
   });
 
-  it('should throw NotFoundException if trying to update a non-existent user', () => {
+  it('should throw NotFoundException if trying to update a non-existent user', async () => {
     const updateData: Partial<User> = { username: 'updateduser' };
-    expect(() => repository.updateUserById(999, updateData)).toThrow(
+    await expect(repository.updateUserById(999, updateData)).rejects.toThrow(
       NotFoundException,
     );
   });
 
-  it('should get a full user by username', () => {
+  it('should get a full user by username', async () => {
     const userWithoutId: UserWithoutId = {
       username: 'testuser',
       password: 'password123',
     };
-    repository.createUser(userWithoutId);
+    await repository.createUser(userWithoutId);
 
-    const result = repository.getFullUserByUserName('testuser');
+    const result = await repository.getFullUserByUserName('testuser');
 
     expect(result).toEqual({
       id: 1,
@@ -105,41 +97,44 @@ describe('InMemoryUsersRepository', () => {
     });
   });
 
-  it('should throw NotFoundException if username does not exist', () => {
-    expect(() => repository.getFullUserByUserName('nonexistent')).toThrow(
-      NotFoundException,
-    );
+  it('should throw NotFoundException if username does not exist', async () => {
+    await expect(
+      repository.getFullUserByUserName('nonexistent'),
+    ).rejects.toThrow(NotFoundException);
   });
 
-  it('should get a user by id and exclude the password', () => {
+  it('should get a user by id and exclude the password', async () => {
     const userWithoutId: UserWithoutId = {
       username: 'testuser',
       password: 'password123',
     };
-    const { id } = repository.createUser(userWithoutId);
+    const { id } = await repository.createUser(userWithoutId);
 
-    const result = repository.getUserById(id);
+    const result = await repository.getUserById(id);
 
     expect(result).toEqual({
-      id: 1,
+      id,
       username: 'testuser',
       created_at: expect.anything(),
       updated_at: expect.anything(),
     });
+
     expect(result).not.toHaveProperty('password');
   });
 
-  it('should throw NotFoundException if user id does not exist', () => {
-    expect(() => repository.getUserById(999)).toThrow(NotFoundException);
+  it('should throw NotFoundException if user id does not exist', async () => {
+    await expect(repository.getUserById(999)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
-  it('should return the correct maximum index', () => {
-    repository.clearUsers();
-    repository.createUser({
+  it('should return the correct maximum index', async () => {
+    await repository.clearUsers();
+    await repository.createUser({
       username: 'user1',
       password: 'password1',
     });
-    repository.createUser({
+    await repository.createUser({
       username: 'user2',
       password: 'password2',
     });

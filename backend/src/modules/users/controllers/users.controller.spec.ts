@@ -75,7 +75,7 @@ describe('UsersController', () => {
         password,
       });
       const { id } = createdUser;
-      const updatedUsername = 'updateduser';
+      const updatedUsername = 'updated-user';
 
       const mockRequest = { user: { id } } as unknown as Request;
       const updateDto: UpdateUserProfileDto = { username: updatedUsername };

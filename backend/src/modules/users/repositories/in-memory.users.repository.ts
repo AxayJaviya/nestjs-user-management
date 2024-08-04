@@ -28,7 +28,7 @@ export class InMemoryUsersRepository implements UsersRepository {
     this.saveUsers();
   }
 
-  createUser(user: UserWithoutId): UserWithoutPassword {
+  async createUser(user: UserWithoutId): Promise<UserWithoutPassword> {
     this.reloadUsers();
 
     const lowerCaseUsername = user.username.toLowerCase();
@@ -56,7 +56,7 @@ export class InMemoryUsersRepository implements UsersRepository {
     return this.excludePassword(newUser);
   }
 
-  getUserById(id: User['id']): UserWithoutPassword {
+  async getUserById(id: User['id']): Promise<UserWithoutPassword> {
     this.reloadUsers();
 
     const user = this.users.find((user) => user.id === id);
@@ -66,7 +66,10 @@ export class InMemoryUsersRepository implements UsersRepository {
     return this.excludePassword(user);
   }
 
-  updateUserById(id: User['id'], user: Partial<User>): UserWithoutPassword {
+  async updateUserById(
+    id: User['id'],
+    user: Partial<User>,
+  ): Promise<UserWithoutPassword> {
     this.reloadUsers();
 
     const index = this.users.findIndex((user) => user.id === id);
@@ -94,7 +97,7 @@ export class InMemoryUsersRepository implements UsersRepository {
     return this.excludePassword(this.users[index]);
   }
 
-  getFullUserByUserName(username: User['username']): User {
+  async getFullUserByUserName(username: User['username']): Promise<User> {
     this.reloadUsers();
 
     const user = this.users.find(
