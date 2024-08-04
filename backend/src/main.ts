@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 import * as process from 'process';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './exception-filters/all-exceptions.filter';
 
 // Load the appropriate .env file based on NODE_ENV
 const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
@@ -12,6 +13,29 @@ dotenv.config({ path: envFilePath });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Add global prefix for API routes
+  app.setGlobalPrefix('api');
+
+  app.enableVersioning();
+
+  // Enable cross-origin requests
+  app.enableCors();
+
+  // Add security headers
+  app.use(helmet());
+
+  // Apply validation pipe globally
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
+  // Register the AllExceptionsFilter globally
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Set up Swagger
   const config = new DocumentBuilder()
@@ -25,26 +49,6 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
-  // Apply validation pipe globally
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      whitelist: true,
-      forbidNonWhitelisted: true,
-    }),
-  );
-
-  // Enable cross-origin requests
-  app.enableCors();
-
-  // Add security headers
-  app.use(helmet());
-
-  // Add global prefix for API routes
-  app.setGlobalPrefix('api');
-
-  app.enableVersioning();
 
   // Get port from environment or use default
   const port = 3000; // We can also add this in our .env file
