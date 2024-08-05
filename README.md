@@ -3,15 +3,18 @@ RESTful APIs for managing user registration, authentication, and profile managem
 
 ## Prerequisites
 - **Node.js**: Ensure you have Node.js installed. You can download it from [nodejs.org](https://nodejs.org/).
+- **PostgreSQL**: You need PostgreSQL to be set up. You can either:
+    - **Run PostgreSQL Locally**: Install PostgreSQL from [the official site](https://www.postgresql.org/download/) and set it up according to your operating system.
+    - **Use Docker Compose**: If you prefer, Docker Compose can set up PostgreSQL for you (instructions are provided in the [Running the Application](#running-the-application) section).
 
 ## Installation
 1. **Clone the repository:**
-    ```
+    ```bash
     git clone https://github.com/AxayJaviya/nestjs-user-management.git
     cd nestjs-user-management/backend
     ```
 2. **Install dependencies:**
-    ```
+    ```bash
     npm install
     ```
 
@@ -19,88 +22,75 @@ RESTful APIs for managing user registration, authentication, and profile managem
 
 ### Environment Variables
 
-1. **Local Development:**
-    - Create a `.env.development` file in the `backend` folder with the following content:
-    ```env
-    # Database
-    POSTGRES_DB=user-management
-    POSTGRES_USER=username
-    POSTGRES_PASSWORD=password
-    
-    # For Application running via npm run start:dev
-    DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5432/${POSTGRES_DB}?schema=public
-    
-    # JWT
-    JWT_TOKEN_SECRET="G6a9D3@pL!vZ2k#s8T1wX$yM5qF7uB^eP0nJ4rH"
+1. **Copy Example Environment File:**
+    - The application includes an example environment file. Copy this file to create your `.env` file:
+    ```bash
+    cp .env.example .env
     ```
-2. **Using Docker Compose:**
-    - Ensure Docker and Docker Compose are installed.
-    - Docker Compose will automatically pick up the `.env.development` file in the `backend` folder.
-    - Create or update the `.env.development` file with the following content:
-    ```env
-    # Database
-    POSTGRES_DB=user-management
-    POSTGRES_USER=username
-    POSTGRES_PASSWORD=password
-    
-    # For Application running via Docker Compose
-    DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
-    
-    # JWT
-    JWT_TOKEN_SECRET="G6a9D3@pL!vZ2k#s8T1wX$yM5qF7uB^eP0nJ4rH"
-    ```
+
+2. **Modify the `.env` File:**
+    - Edit the `.env` file to configure your environment variables for PostgreSQL. Ensure the `DATABASE_URL` is correctly set whether you are running PostgreSQL locally or via Docker Compose.
 
 ## Running the Application
 
-1. **Locally (Development Mode):**
-   - Start the application using:
+1. **Using Docker Compose (Recommended):**
+    - **Build Docker Images:**
+        - Navigate to the `backend` folder and build the Docker images using:
+      ```bash
+      docker-compose build
+      ```
+
+    - **Start PostgreSQL Container:**
+        - Start the PostgreSQL container and other services defined in your `docker-compose.yml` file:
+      ```bash
+      docker-compose up -d
+      ```
+        - This command will run the PostgreSQL container in detached mode (in the background). If you need to view logs or interact with the containers, omit the `-d` flag.
+
+    - **Deploy Prisma Migrations:**
+        - Apply Prisma migrations to set up the database schema. This step ensures that your database is in sync with your Prisma schema definitions:
+      ```bash
+      npm run prisma:deploy
+      ```
+        - This command will run the Prisma migration scripts that create and update the database schema. It is essential for initializing the database structure and applying any schema changes.
+
+    - **Start the Application:**
+        - Start the application by running:
+      ```bash
+      npm run start:dev
+      ```
+
+2. **Running Locally (Without Docker Compose):**
+    - Ensure PostgreSQL is running locally.
+    - Deploy Prisma migrations:
+    ```bash
+    npm run prisma:deploy
     ```
+    - Start the application:
+    ```bash
     npm run start:dev
     ```
-
-2. **Using Docker Compose:**
-   - **Build Docker Images:**
-      - Navigate to the `backend` folder and build the Docker images using:
-     ```
-     docker-compose build
-     ```
-
-   - **Start Containers:**
-      - After building the images, start the containers using:
-     ```
-     docker-compose up
-     ```
-      - This command will start both the application and PostgreSQL container. If you want to run the containers in detached mode (in the background), use:
-     ```
-     docker-compose up -d
-     ```
-
-   - **Stop and Remove Containers:**
-      - To stop and remove all containers, networks, and volumes created by `docker-compose up`, use:
-     ```
-     docker-compose down
-     ```
 
 ## Running Tests
 
 1. **Unit Tests:**
     - To run unit tests, use:
-    ```
+    ```bash
     npm test
     ```
     - This command will execute the unit tests defined in your project using Jest.
 
 2. **End-to-End (e2e) Tests:**
     - To run e2e tests, use:
-    ```
+    ```bash
     npm run test:e2e
     ```
     - This command will execute the end-to-end tests using Jest with the configuration defined in `test/jest-e2e.json`.
 
-## File Structure
-- **backend/**: Contains the NestJS application code.
-- **.env.development**: Environment variables for local development and Docker Compose.
-- **package.json**: Defines scripts for running the application and tests.
+## Author
+- **Author**: [Axay Javiya](https://linkedin.com/in/axayjaviya)
 
-## Repository
-- [GitHub Repository](https://github.com/AxayJaviya/nestjs-user-management)
+## References
+- **NestJS Documentation**: [https://docs.nestjs.com](https://docs.nestjs.com)
+- **PostgreSQL**: [https://www.postgresql.org](https://www.postgresql.org)
+- **Prisma**: [https://www.prisma.io](https://www.prisma.io)
