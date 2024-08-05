@@ -1,40 +1,16 @@
-version: "3.9"
-
+# docker compose for PostgreSQL database
+version: '3.9'
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: development
-    restart: always
-    depends_on:
-      - postgres
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-    env_file:
-      - .env.development # Change this to the appropriate .env file for other environments
-    command: npm run start:dev # Change this for relative environment
-    ports:
-      - "3000:3000"
-    networks:
-      - app-network
 
   postgres:
     image: postgres:latest
     restart: always
     env_file:
-      - .env.development # Change this to the appropriate .env file for other environments
+      - .env
+    volumes:
+      - postgres:/var/lib/postgresql/data
     ports:
       - '5432:5432'
-    volumes:
-      - user-management-postgres:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
-  user-management-postgres:
+  postgres:

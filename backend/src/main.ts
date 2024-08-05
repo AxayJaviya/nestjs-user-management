@@ -7,16 +7,17 @@ import * as process from 'process';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './exception-filters/all-exceptions.filter';
 
-// Load the appropriate .env file based on NODE_ENV
-const envFilePath = `.env.${process.env.NODE_ENV || 'development'}`;
-dotenv.config({ path: envFilePath });
+// Load environment variables
+dotenv.config({ path: '.env' });
 
 async function bootstrap() {
+  // Create the Nest application
   const app = await NestFactory.create(AppModule);
 
   // Add global prefix for API routes
   app.setGlobalPrefix('api');
 
+  // Enable API versioning
   app.enableVersioning();
 
   // Enable cross-origin requests
@@ -25,7 +26,7 @@ async function bootstrap() {
   // Add security headers
   app.use(helmet());
 
-  // Apply validation pipe globally
+  // Apply global validation pipe
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -34,11 +35,11 @@ async function bootstrap() {
     }),
   );
 
-  // Register the AllExceptionsFilter globally
+  // Register global exception filter
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  // Set up Swagger
-  const config = new DocumentBuilder()
+  // Set up Swagger for API documentation
+  const swaggerConfig = new DocumentBuilder()
     .setTitle('NestJS User Management APIs')
     .setDescription(
       'API documentation for managing user registration, authentication, and profile management',
@@ -47,11 +48,11 @@ async function bootstrap() {
     .addTag('users', 'Operations related to user management')
     .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('api', app, swaggerDocument);
 
-  // Get port from environment or use default
-  const port = 3000; // We can also add this in our .env file
+  // Determine the port to listen on
+  const port = process.env.PORT || 3000;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
 }

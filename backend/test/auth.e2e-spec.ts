@@ -1,6 +1,5 @@
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -14,9 +13,7 @@ describe('UserController E2E tests for /api/auth routes', () => {
   let app: INestApplication;
   let authService: AuthService;
   let tokensService: TokensService;
-  let jwtService: JwtService;
   let testToken: string;
-  let testUserId: number;
 
   const username = `user-${Date.now()}`;
   const password = 'password123';
@@ -36,15 +33,10 @@ describe('UserController E2E tests for /api/auth routes', () => {
 
     authService = moduleFixture.get<AuthService>(AuthService);
     tokensService = moduleFixture.get<TokensService>(TokensService);
-    jwtService = moduleFixture.get<JwtService>(JwtService);
 
     // Create a test user and get a valid accessToken for authentication
     const signupResponse = await authService.signUp({ username, password });
     testToken = signupResponse.accessToken;
-
-    // Decode accessToken to get the user ID
-    const decodedToken = await jwtService.verifyAsync(testToken);
-    testUserId = decodedToken.id;
   });
 
   afterAll(async () => {
