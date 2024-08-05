@@ -5,19 +5,23 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
+      target: development
+    restart: always
     depends_on:
       - postgres
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     env_file:
       - .env.development # Change this to the appropriate .env file for other environments
-    command: node dist/main.js
+    command: npm run start:dev # Change this for relative environment
     ports:
       - "3000:3000"
     networks:
       - app-network
 
   postgres:
-    image: postgres:16.3-alpine
+    image: postgres:latest
     restart: always
     env_file:
       - .env.development # Change this to the appropriate .env file for other environments
