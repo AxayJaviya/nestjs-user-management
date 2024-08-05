@@ -26,6 +26,10 @@ lerna-debug.log*
 .temp
 .tmp
 
+# In-memory repositories data
+src/modules/auth/repositories/data/
+src/modules/users/repositories/data/
+
 # Runtime data
 pids
 *.pid
